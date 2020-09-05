@@ -297,37 +297,37 @@ const deployAppSyncResolvers = async (aws, params) => {
       }
     }
 
-    for (const type in existingResolvers) {
-      for (const field in existingResolvers[type]) {
-        if (!resolvers[type] || !resolvers[type][field]) {
-          const appSync = new aws.AppSync()
-          const deleteAppSyncResolverParams = {
-            apiId,
-            fieldName: field,
-            typeName: type
-          }
-          promises.push(appSync.deleteResolver(deleteAppSyncResolverParams).promise())
-        }
-      }
-    }
+    // for (const type in existingResolvers) {
+    //   for (const field in existingResolvers[type]) {
+    //     if (!resolvers[type] || !resolvers[type][field]) {
+    //       const appSync = new aws.AppSync()
+    //       const deleteAppSyncResolverParams = {
+    //         apiId,
+    //         fieldName: field,
+    //         typeName: type
+    //       }
+    //       promises.push(appSync.deleteResolver(deleteAppSyncResolverParams).promise())
+    //     }
+    //   }
+    // }
 
     await Promise.all(promises)
 
-    const dataSourcesNames = getDataSourcesNames(resolvers)
+    // const dataSourcesNames = getDataSourcesNames(resolvers)
 
-    const removeOutdatedDataSources = []
-    for (const existingDataSourceName of existingDataSourcesNames) {
-      if (!dataSourcesNames.includes(existingDataSourceName)) {
-        const appSync = new aws.AppSync()
-        const deleteDataSourceParams = {
-          apiId,
-          name: existingDataSourceName
-        }
-        removeOutdatedDataSources.push(appSync.deleteDataSource(deleteDataSourceParams).promise())
-      }
-    }
+    // const removeOutdatedDataSources = []
+    // for (const existingDataSourceName of existingDataSourcesNames) {
+    //   if (!dataSourcesNames.includes(existingDataSourceName)) {
+    //     const appSync = new aws.AppSync()
+    //     const deleteDataSourceParams = {
+    //       apiId,
+    //       name: existingDataSourceName
+    //     }
+    //     removeOutdatedDataSources.push(appSync.deleteDataSource(deleteDataSourceParams).promise())
+    //   }
+    // }
 
-    await Promise.all(removeOutdatedDataSources)
+    // await Promise.all(removeOutdatedDataSources)
   } catch (e) {
     if (
       e.code === 'ConcurrentModificationException' &&
