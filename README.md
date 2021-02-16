@@ -1,22 +1,25 @@
-# Serverless AWS SDK
+# AWS SDK Extra
 
-The aws sdk + powerful high-level serverless utils.
+The AWS SDK + a handful of extra convenience methods.
 
 ```js
-// require the serverless aws sdk.
-const aws = require(`@serverless/aws-sdk`)
+// require aws-sdk-extra, instead of the official aws-sdk
+const aws = require(`@serverless/aws-sdk-extra`)
 
-// set credentials, as usual.
-aws.config.update({
+// initialize any service, as usual.
+const s3 = new aws.S3({
   credentials: { accessKeyId: 'xxx', secretAccessKey: 'xxx' },
   region: 'us-east-1'
 })
 
-// use any service, as usual.
-const s3 = new aws.S3()
+// initialize the Extras service for extra methods
+const extras = new aws.Extras({
+  credentials: { accessKeyId: 'xxx', secretAccessKey: 'xxx' },
+  region: 'us-east-1'
+})
 
-// use some powerful utils. More info below.
-const certificate = await aws.utils.deployCertificate(params)
+// call some powerful extra methods. More info below.
+const certificate = await extras.deployCertificate(params)
 ```
 
 # Reference
@@ -34,6 +37,8 @@ const certificate = await aws.utils.deployCertificate(params)
 - [deployAppSyncApi](#deployAppSyncApi)
 - [deployAppSyncSchema](#deployAppSyncSchema)
 - [deployAppSyncResolvers](#deployAppSyncResolvers)
+- [deployStack](#deployStack)
+- [removeStack](#removeStack)
 
 # deployDistributionDomain
 
@@ -49,7 +54,7 @@ const {
   certificateArn,
   certificateStatus,
   domainHostedZoneId
-} = await aws.utils.deployDistributionDomain(params)
+} = await extras.deployDistributionDomain(params)
 ```
 
 # deployCertificate
@@ -61,7 +66,7 @@ const params = {
   domain: 'serverless.com'
 }
 
-const { certificateArn, certificateStatus, domainHostedZoneId } = await aws.utils.deployCertificate(
+const { certificateArn, certificateStatus, domainHostedZoneId } = await extras.deployCertificate(
   params
 )
 ```
@@ -76,7 +81,7 @@ const params = {
   distributionUrl: 'xxx.cloudfront.net'
 }
 
-const { domainHostedZoneId } = await aws.utils.deployDistributionDns(params)
+const { domainHostedZoneId } = await extras.deployDistributionDns(params)
 ```
 
 # addDomainToDistribution
@@ -90,7 +95,7 @@ const params = {
   certificateStatus: 'ISSUED'
 }
 
-const { domainHostedZoneId } = await aws.utils.addDomainToDistribution(params)
+const { domainHostedZoneId } = await extras.addDomainToDistribution(params)
 ```
 
 # getDomainHostedZoneId
@@ -102,7 +107,7 @@ const params = {
   domain: 'serverless.com'
 }
 
-const { domainHostedZoneId } = await aws.utils.getDomainHostedZoneId(params)
+const { domainHostedZoneId } = await extras.getDomainHostedZoneId(params)
 ```
 
 # deployRole
@@ -126,7 +131,7 @@ const params = {
     }
   ]
 }
-const { roleArn } = await aws.utils.deployRole(params)
+const { roleArn } = await extras.deployRole(params)
 ```
 
 Or you can specify the policy as a maanged policy arn string:
@@ -137,7 +142,7 @@ const params = {
   service: 'lambda.amazonaws.com',
   policy: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
 }
-const { roleArn } = await aws.utils.deployRole(params)
+const { roleArn } = await extras.deployRole(params)
 ```
 
 If you don't specify a policy property, an admin policy will be created by default.
@@ -151,7 +156,7 @@ const params = {
   name: 'my-role'
 }
 
-await aws.utils.removeRole(params)
+await extras.removeRole(params)
 ```
 
 # removeRolePolicies
@@ -163,7 +168,7 @@ const params = {
   name: 'my-role'
 }
 
-await aws.utils.removeRolePolicies(params)
+await extras.removeRolePolicies(params)
 ```
 
 # deployLambda
@@ -171,7 +176,7 @@ await aws.utils.removeRolePolicies(params)
 Updates a lambda if it exists, otherwise creates a new one.
 
 ```js
-const lambdaParams = {
+const params = {
   lambdaName: 'my-lambda', // required
   roleArn: 'aws:iam:role:arn:xxx', // required
   lambdaSrc: 'path/to/lambda/directory' // required. could also be a buffer of a zip file
@@ -184,7 +189,7 @@ const lambdaParams = {
       - subnet-xxx
 }
 
-const { lambdaArn, lambdaSize, lambdaSha } = await aws.utils.deployLambda(params)
+const { lambdaArn, lambdaSize, lambdaSha } = await extras.deployLambda(params)
 ```
 
 # deployApigDomainDns
@@ -192,13 +197,13 @@ const { lambdaArn, lambdaSize, lambdaSha } = await aws.utils.deployLambda(params
 Deploys the DNS records for an Api Gateway V2 HTTP custom domain
 
 ```js
-const lambdaParams = {
+const params = {
   domain: 'serverless.com', // required. The custom domain you'd like to configure.
   apigatewayHostedZoneId: 'qwertyuiop', // required. The regional hosted zone id of the APIG custom domain
   apigatewayDomainName: 'd-qwertyuiop.xxx.com' // required. The regional endpoint of the APIG custom domain
 }
 
-const { domainHostedZoneId } = await aws.utils.deployApigDomainDns(params)
+const { domainHostedZoneId } = await extras.deployApigDomainDns(params)
 ```
 
 # deployAppSyncApi
@@ -206,12 +211,12 @@ const { domainHostedZoneId } = await aws.utils.deployApigDomainDns(params)
 Updates or creates an AppSync API
 
 ```js
-const deployAppSyncApiParams = {
+const params = {
   apiName: 'my-api',
   apiId: 'xxx' // if provided, updates the API. If not provided, creates a new API
 }
 
-const { apiId, apiUrls } = await aws.utils.deployAppSyncApi(params)
+const { apiId, apiUrls } = await extras.deployAppSyncApi(params)
 ```
 
 # deployAppSyncSchema
@@ -219,12 +224,12 @@ const { apiId, apiUrls } = await aws.utils.deployAppSyncApi(params)
 Updates or creates an AppSync Schema
 
 ```js
-const deployAppSyncSchemaParams = {
+const params = {
   apiId: 'xxx', // the targeted api id
   schema: '...' // valid graphql schema
 }
 
-await aws.utils.deployAppSyncApi(params)
+await extras.deployAppSyncApi(params)
 ```
 
 # deployAppSyncResolvers
@@ -232,7 +237,7 @@ await aws.utils.deployAppSyncApi(params)
 Updates or creates AppSync Resolvers
 
 ```js
-const deployAppSyncResolversParams = {
+const params = {
   apiId,
   roleName: 'my-role', // name of the role that provides access for these resources to the required resources
   resolvers: {
@@ -249,5 +254,60 @@ const deployAppSyncResolversParams = {
   }
 }
 
-await aws.utils.deployAppSyncResolvers(params)
+await extras.deployAppSyncResolvers(params)
+```
+
+# deployStack
+
+Updates or creates a CloudFormation stack.
+
+```js
+const inputs = {
+  stackName: 'my-stack', // required
+  template: {
+    // required
+    AWSTemplateFormatVersion: '2010-09-09',
+    Description: 'Example Stack',
+    Resources: {
+      LogGroup: {
+        Type: 'AWS::Logs::LogGroup',
+        Properties: {
+          LogGroupName: '/log/group/one',
+          RetentionInDays: 14
+        }
+      }
+    },
+    Outputs: {
+      firstStackOutput: {
+        Value: {
+          'Fn::GetAtt': ['LogGroup', 'Arn']
+        }
+      },
+      secondStackOutput: {
+        Value: {
+          'Fn::GetAtt': ['LogGroup', 'Arn']
+        }
+      }
+    }
+  },
+  capabilities: ['CAPABILITY_IAM'],
+  parameters: {
+    firstParameter: 'value'
+  },
+  role: 'arn:iam:xxx'
+}
+
+const outputs = await extras.deployStack(params)
+```
+
+# removeStack
+
+Removes a CloudFormation stack if it exists.
+
+```js
+const prams = {
+  stackName: 'my-stack' // name of the stack you want to remove
+}
+
+await extras.removeStack(params)
 ```
